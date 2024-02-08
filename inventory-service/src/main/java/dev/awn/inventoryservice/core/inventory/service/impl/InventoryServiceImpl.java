@@ -18,14 +18,18 @@ import java.util.List;
 public class InventoryServiceImpl implements InventoryService {
     private final InventoryRepository inventoryRepository;
 
-    @Transactional(readOnly = true)
     @Override
     public List<InventoryResponse> isInStock(List<String> codes) {
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException ignored) {
-            Thread.currentThread().interrupt();
-        }
+        // Simulating a slow service response
+//        try {
+//            log.info("sleeping");
+//            Thread.sleep(10000);
+//            Thread.currentThread().interrupt();
+//        } catch (InterruptedException ignored) {
+//            throw new RuntimeException();
+//        } finally {
+//            log.info("in finally");
+//        }
 
         if (codes == null || codes.isEmpty()) {
             throw new BadRequestException("Code/s cannot be empty");
