@@ -24,7 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional
 public class OrderServiceImpl implements OrderService {
-    private final static String NOTIFICATION_TOPIC = "NOTIFICATION_TOPIC";
+    private final static String NOTIFICATION_TOPIC = "notification-topic";
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;

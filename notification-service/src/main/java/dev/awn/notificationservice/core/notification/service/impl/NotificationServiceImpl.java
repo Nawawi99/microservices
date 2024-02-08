@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
-    private final String NOTIFICATION_TOPIC = "NOTIFICATION_TOPIC";
-    private final String NOTIFICATION_TOPIC_CONSUMER_GROUP = "NOTIFICATION_TOPIC_CONSUMER_GROUP";
+    private final String NOTIFICATION_TOPIC = "notification-topic";
+    private final String NOTIFICATION_TOPIC_CONSUMER_GROUP = "notification-topic-consumer-group";
     private final Gson gson;
 
     @KafkaListener(topics = NOTIFICATION_TOPIC,
