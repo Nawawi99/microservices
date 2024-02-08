@@ -4,6 +4,6 @@ import dev.awn.orderservice.core.order.dto.OrderDTO;
 
 public interface OrderService {
 
-    public OrderDTO createOrder(OrderDTO orderDTO);
+    OrderDTO createOrder(OrderDTO orderDTO);
 
 }

@@ -14,8 +14,5 @@ import java.util.List;
 public class OrderDTO {
     private String id;
     private String number;
-
-//    @NotNull(message = "Order should contain item/s")
-//    @NotEmpty(message = "Order should contain item/s")
     private List<ItemDTO> items;
 }

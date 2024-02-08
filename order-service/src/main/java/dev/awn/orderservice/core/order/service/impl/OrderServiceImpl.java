@@ -34,6 +34,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO createOrder(OrderDTO orderDTO) {
+        try {
+            Thread.sleep(5000);
+        } catch (Exception ignored) {
+            Thread.currentThread().interrupt();
+        }
+
         Order order = orderMapper.toModel(orderDTO);
 
         order.setNumber(UUID.randomUUID()

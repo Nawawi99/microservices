@@ -31,7 +31,7 @@ public class OrderController {
      * 2- Timeout exceeded and the call is aborted
      */
     @PostMapping
-    @CircuitBreaker(name = INVENTORY_SERVICE_CIRCUIT)
+    @CircuitBreaker(name = INVENTORY_SERVICE_CIRCUIT, fallbackMethod = "createOrderFallback")
     @TimeLimiter(name = INVENTORY_SERVICE_CIRCUIT)
     @Retry(name = INVENTORY_SERVICE_CIRCUIT)
     public CompletableFuture<ResponseEntity<OrderDTO>> createOrder(@RequestBody OrderDTO orderDTO) {
@@ -42,9 +42,9 @@ public class OrderController {
                 );
     }
 
-//    public CompletableFuture<ResponseEntity<OrderDTO>> createOrderFallback(OrderDTO orderDTO, RuntimeException e) {
-//        System.out.println("Entered Here");
-//        throw new ServiceUnavailableException("Oops! Something went wrong, try again later");
-//    }
+    public CompletableFuture<ResponseEntity<OrderDTO>> createOrderFallback(OrderDTO orderDTO, RuntimeException e) {
+        System.out.println("Entered Here");
+        throw new ServiceUnavailableException("Oops! Something went wrong, try again later");
+    }
 
 }
