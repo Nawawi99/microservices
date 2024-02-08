@@ -43,8 +43,9 @@ public class OrderController {
     }
 
     public CompletableFuture<ResponseEntity<OrderDTO>> createOrderFallback(OrderDTO orderDTO, RuntimeException e) {
-        System.out.println("Entered Here");
-        throw new ServiceUnavailableException("Oops! Something went wrong, try again later");
+        return CompletableFuture.supplyAsync(() -> {
+            throw new ServiceUnavailableException("Oops! Something went wrong, try again later");
+        });
     }
 
 }
