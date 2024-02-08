@@ -20,10 +20,10 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public List<InventoryResponse> isInStock(List<String> codes) {
-//        try {
-//            Thread.sleep(10000);
-//        } catch (InterruptedException ignored) {
-//        }
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException ignored) {
+        }
 
         if (codes == null || codes.isEmpty()) {
             throw new BadRequestException("Code/s cannot be empty");
