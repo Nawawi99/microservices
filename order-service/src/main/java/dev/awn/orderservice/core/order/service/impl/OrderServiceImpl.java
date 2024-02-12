@@ -2,18 +2,21 @@ package dev.awn.orderservice.core.order.service.impl;
 
 import com.google.gson.Gson;
 import dev.awn.orderservice.common.exception.BadRequestException;
+import dev.awn.orderservice.common.exception.PaymentException;
 import dev.awn.orderservice.core.order.dto.InventoryResponse;
 import dev.awn.orderservice.core.order.dto.OrderDTO;
 import dev.awn.orderservice.core.order.event.OrderPlacedEvent;
 import dev.awn.orderservice.core.order.mapper.OrderMapper;
+import dev.awn.orderservice.core.order.message.OrderPaymentMessage;
 import dev.awn.orderservice.core.order.model.Item;
 import dev.awn.orderservice.core.order.model.Order;
 import dev.awn.orderservice.core.order.repository.OrderRepository;
 import dev.awn.orderservice.core.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Arrays;
@@ -22,13 +25,18 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@RefreshScope
 public class OrderServiceImpl implements OrderService {
-    private final static String NOTIFICATION_TOPIC = "notification-topic";
+    private final String PAYMENT_EXCHANGE = "payment-exchange";
+    private final String PAYMENT_ROUTING_KEY = "payment-routing-key";
+
+    private final String NOTIFICATION_TOPIC = "notification-topic";
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final WebClient.Builder webClientBuilder;
     private final KafkaTemplate<String, String> kafkaTemplate;
+    private final RabbitTemplate rabbitTemplate;
     private final Gson gson;
 
     @Override
@@ -61,17 +69,31 @@ public class OrderServiceImpl implements OrderService {
                                         .allMatch(InventoryResponse::getInStock);
 
         if (productsInStock) {
-            Order savedOrder = orderRepository.save(order);
+            double totalOrderValue = order.getItems()
+                                               .stream()
+                                               .mapToDouble(Item::getPrice)
+                                               .reduce(0.0, Double::sum);
 
-            OrderPlacedEvent orderPlacedEvent = new OrderPlacedEvent(savedOrder.getNumber());
+            OrderPaymentMessage orderPaymentMessage = new OrderPaymentMessage(order.getNumber(), totalOrderValue);
 
-            String json = gson.toJson(orderPlacedEvent);
+            Boolean paymentSuccess = (Boolean) rabbitTemplate.convertSendAndReceive(PAYMENT_EXCHANGE, PAYMENT_ROUTING_KEY,
+                    orderPaymentMessage);
+            System.out.println("The result is " + paymentSuccess);
+            if(paymentSuccess != null && paymentSuccess) {
+                Order savedOrder = orderRepository.save(order);
 
-            kafkaTemplate.send(NOTIFICATION_TOPIC, json);
+                OrderPlacedEvent orderPlacedEvent = new OrderPlacedEvent(savedOrder.getNumber());
 
-            return orderMapper.toDTO(savedOrder);
+                String json = gson.toJson(orderPlacedEvent);
+
+                kafkaTemplate.send(NOTIFICATION_TOPIC, json);
+
+                return orderMapper.toDTO(savedOrder);
+            } else {
+                throw new PaymentException();
+            }
+
         } else {
-            // This should be replaced by a better exception class && msg
             throw new BadRequestException("Product/s not in stock");
         }
     }

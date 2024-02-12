@@ -1,9 +1,6 @@
 package dev.awn.orderservice.common.exception.handler;
 
-import dev.awn.orderservice.common.exception.BadRequestException;
-import dev.awn.orderservice.common.exception.ServiceUnavailableException;
-import dev.awn.orderservice.common.exception.ResourceNotFoundException;
-import dev.awn.orderservice.common.exception.ValidationException;
+import dev.awn.orderservice.common.exception.*;
 import dev.awn.orderservice.common.exception.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -75,4 +72,17 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(errorResponse, HttpStatus.REQUEST_TIMEOUT);
     }
+
+    @ExceptionHandler(PaymentException.class)
+    public ResponseEntity<ErrorResponse> handlePaymentException(PaymentException e) {
+        String errorMessage = "Something unexpected happened while processing the payment, try again later!";
+
+        ErrorResponse errorResponse = new ErrorResponse(LocalDateTime.now(),
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase(),
+                errorMessage);
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.SERVICE_UNAVAILABLE);
+    }
 }
+
