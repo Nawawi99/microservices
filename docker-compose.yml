@@ -1,0 +1,142 @@
+---
+version: '3'
+services:
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.0.1
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+  config-server:
+    image: ahmadnawawi99/microservices:config-server
+    container_name: config-server
+    ports:
+      - "8090:8090"
+    expose:
+      - "8090"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  discovery-server:
+    image: ahmadnawawi99/microservices:discovery-server
+    container_name: discovery-server
+    ports:
+      - "8761:8761"
+    expose:
+      - "8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - config-server
+
+  api-gateway:
+    image: ahmadnawawi99/microservices:api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY= TRACE
+    depends_on:
+      - discovery-server
+      - config-server
+
+  authentication-service:
+    container_name: authentication-service
+    image: ahmadnawawi99/microservices:authentication-service
+    ports:
+      - "8091:8091"
+    expose:
+      - "8091"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - discovery-server
+      - api-gateway
+      - config-server
+
+  product-service:
+    container_name: product-service
+    image: ahmadnawawi99/microservices:product-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - discovery-server
+      - api-gateway
+      - config-server
+
+  order-service:
+    container_name: order-service
+    image: ahmadnawawi99/microservices:order-service
+    #image: ahmadnawawi99/microservices/order-service:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - kafka
+      - discovery-server
+      - api-gateway
+      - config-server
+      - rabbitmq
+
+  inventory-service:
+    container_name: inventory-service
+    image: ahmadnawawi99/microservices:inventory-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - discovery-server
+      - api-gateway
+      - config-server
+
+  notification-service:
+    container_name: notification-service
+    image: ahmadnawawi99/microservices:notification-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - discovery-server
+      - api-gateway
+      - config-server
+      - kafka
+
+  payment-service:
+    container_name: payment-service
+    image: ahmadnawawi99/microservices:payment-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - discovery-server
+      - api-gateway
+      - config-server
+      - rabbitmq
