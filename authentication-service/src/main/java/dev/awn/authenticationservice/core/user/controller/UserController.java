@@ -6,10 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import dev.awn.authenticationservice.core.user.dto.JwtAuthenticationResponse;
 import dev.awn.authenticationservice.core.user.dto.SignInRequest;
@@ -28,7 +25,7 @@ public class UserController {
     public ResponseEntity<JwtAuthenticationResponse> signup(@Validated @RequestBody SignUpRequest request,
                                                             BindingResult bindingResult) {
 
-        if(bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             throw new ValidationException(bindingResult);
         }
 
@@ -42,7 +39,7 @@ public class UserController {
     public ResponseEntity<JwtAuthenticationResponse> signin(@Validated @RequestBody SignInRequest request,
                                                             BindingResult bindingResult) {
 
-        if(bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             throw new ValidationException(bindingResult);
         }
 
@@ -50,5 +47,11 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK)
                              .body(jwtAuthenticationResponse);
+    }
+
+    @GetMapping
+    public ResponseEntity<Boolean> usernameExists(@RequestParam String username) {
+        return ResponseEntity.status(HttpStatus.OK)
+                             .body(userService.usernameExists(username));
     }
 }

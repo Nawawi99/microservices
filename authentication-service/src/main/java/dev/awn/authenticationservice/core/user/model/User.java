@@ -23,7 +23,7 @@ public class User implements UserDetails {
     private String id;
     private String firstName;
     private String lastName;
-    private String email;
+    private String username;
     private String password;
     private List<Role> roles;
 
@@ -36,8 +36,8 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        // our "username" for security is the email field
-        return email;
+        // This can be customized to be an email as well
+        return username;
     }
 
     @Override

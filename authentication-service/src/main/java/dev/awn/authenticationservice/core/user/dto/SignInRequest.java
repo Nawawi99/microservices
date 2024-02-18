@@ -15,10 +15,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SignInRequest {
 
-    @NotNull(message = "Email cannot be null")
-    @NotBlank(message = "Email cannot be empty")
-    @Email(regexp = "^[A-Za-z0-9+_.-]+@(.+)$")
-    private String email;
+    @NotNull(message = "Username cannot be null")
+    @NotBlank(message = "Username cannot be empty")
+    private String username;
 
     @NotNull(message = "Password cannot be null")
     @NotBlank(message = "Password cannot be empty")

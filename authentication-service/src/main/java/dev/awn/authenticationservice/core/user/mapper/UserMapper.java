@@ -20,7 +20,7 @@ public class UserMapper {
         return User.builder()
                    .firstName(signUpRequest.getFirstName())
                    .lastName(signUpRequest.getLastName())
-                   .email(signUpRequest.getEmail())
+                   .username(signUpRequest.getUsername())
                    .password(passwordEncoder.encode(signUpRequest.getPassword()))
                    .roles(List.of(Role.ROLE_USER))
                    .build();
@@ -31,7 +31,7 @@ public class UserMapper {
                       .id(user.getId())
                       .firstName(user.getFirstName())
                       .lastName(user.getLastName())
-                      .email(user.getEmail())
+                      .username(user.getUsername())
                       .roles(user.getRoles())
                       .build();
     }

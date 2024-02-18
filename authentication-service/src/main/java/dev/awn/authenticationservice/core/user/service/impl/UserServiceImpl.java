@@ -17,6 +17,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -39,10 +40,10 @@ public class UserServiceImpl implements UserService {
 
 
     public JwtAuthenticationResponse signup(SignUpRequest request) {
-        String email = request.getEmail();
+        String username = request.getUsername();
 
-        if (userRepository.existsByEmail(email)) {
-            throw new BadRequestException(email + " is already used");
+        if (userRepository.existsByUsername(username)) {
+            throw new BadRequestException(username + " is already used");
         }
 
         User user = userMapper.toEntity(request);
@@ -61,12 +62,12 @@ public class UserServiceImpl implements UserService {
 
 
     public JwtAuthenticationResponse signin(SignInRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                                  .orElseThrow(() -> new BadRequestException("Email doesn't exist"));
+        User user = userRepository.findByUsername(request.getUsername())
+                                  .orElseThrow(() -> new UsernameNotFoundException("Username doesn't exist"));
 
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken
-                        (request.getEmail(), request.getPassword()));
+                        (request.getUsername(), request.getPassword()));
 
         if(!authentication.isAuthenticated()) {
             throw new BadCredentialsException("Invalid Credentials");
@@ -80,6 +81,17 @@ public class UserServiceImpl implements UserService {
                                         .userDTO(userDTO)
                                         .token(jwt)
                                         .build();
+    }
+
+    public Boolean usernameExists(String username) {
+        if(username == null || username.isBlank()) {
+            throw new BadRequestException("Username cannot be empty");
+        }
+
+        User user = userRepository.findByUsername(username)
+                                  .orElseThrow(() -> new UsernameNotFoundException("Username doesn't exist"));
+
+        return true;
     }
 
 }

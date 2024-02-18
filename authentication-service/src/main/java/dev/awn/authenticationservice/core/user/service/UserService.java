@@ -10,4 +10,6 @@ public interface UserService {
     JwtAuthenticationResponse signup(SignUpRequest request);
 
     JwtAuthenticationResponse signin(SignInRequest request);
+
+    Boolean usernameExists(String username);
 }

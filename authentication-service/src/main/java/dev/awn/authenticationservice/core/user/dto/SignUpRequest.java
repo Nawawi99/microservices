@@ -25,10 +25,9 @@ public class SignUpRequest {
     @Size(min = 3, max = 20, message = "Last Name '${validatedValue}' must be between {min} and {max} characters long")
     private String lastName;
 
-    @NotNull(message = "Email cannot be null")
-    @NotBlank(message = "Email cannot be empty")
-    @Email(regexp = "^[A-Za-z0-9+_.-]+@(.+)$")
-    private String email;
+    @NotNull(message = "Username cannot be null")
+    @NotBlank(message = "Username cannot be empty")
+    private String Username;
 
     @NotNull(message = "Password cannot be null")
     @NotBlank(message = "Password cannot be empty")
