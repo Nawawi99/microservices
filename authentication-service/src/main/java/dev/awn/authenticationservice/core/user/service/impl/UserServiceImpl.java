@@ -12,6 +12,10 @@ import dev.awn.authenticationservice.core.user.repository.UserRepository;
 import dev.awn.authenticationservice.core.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,16 +30,19 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
+    private final MongoTemplate mongoTemplate;
 
     @Autowired
     public UserServiceImpl(UserMapper userMapper,
                            UserRepository userRepository,
                            JwtUtils jwtUtils,
-                           @Lazy AuthenticationManager authenticationManager) {
+                           @Lazy AuthenticationManager authenticationManager,
+                           MongoTemplate mongoTemplate) {
         this.userMapper = userMapper;
         this.userRepository = userRepository;
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
+        this.mongoTemplate = mongoTemplate;
     }
 
 
@@ -48,11 +55,13 @@ public class UserServiceImpl implements UserService {
 
         User user = userMapper.toEntity(request);
 
+        String jwt = jwtUtils.generateToken(user);
+
+        user.setToken(jwt);
+
         User createdUser = userRepository.save(user);
 
-        String jwt = jwtUtils.generateToken(createdUser);
-
-        UserDTO userDTO = userMapper.toDTO(user);
+        UserDTO userDTO = userMapper.toDTO(createdUser);
 
         return JwtAuthenticationResponse.builder()
                                         .userDTO(userDTO)
@@ -75,23 +84,17 @@ public class UserServiceImpl implements UserService {
 
         String jwt = jwtUtils.generateToken(user);
 
+        // Update the token of that user
+        Query query = new Query(Criteria.where("username").is(user.getUsername()));
+        Update update = new Update().set("token", jwt);
+        mongoTemplate.updateFirst(query, update, User.class);
+
         UserDTO userDTO = userMapper.toDTO(user);
 
         return JwtAuthenticationResponse.builder()
                                         .userDTO(userDTO)
                                         .token(jwt)
                                         .build();
-    }
-
-    public Boolean usernameExists(String username) {
-        if(username == null || username.isBlank()) {
-            throw new BadRequestException("Username cannot be empty");
-        }
-
-        User user = userRepository.findByUsername(username)
-                                  .orElseThrow(() -> new UsernameNotFoundException("Username doesn't exist"));
-
-        return true;
     }
 
 }

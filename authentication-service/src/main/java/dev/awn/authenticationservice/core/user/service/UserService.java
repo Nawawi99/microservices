@@ -11,5 +11,4 @@ public interface UserService {
 
     JwtAuthenticationResponse signin(SignInRequest request);
 
-    Boolean usernameExists(String username);
 }

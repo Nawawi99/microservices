@@ -49,9 +49,4 @@ public class UserController {
                              .body(jwtAuthenticationResponse);
     }
 
-    @GetMapping
-    public ResponseEntity<Boolean> usernameExists(@RequestParam String username) {
-        return ResponseEntity.status(HttpStatus.OK)
-                             .body(userService.usernameExists(username));
-    }
 }
