@@ -26,6 +26,7 @@ services:
     container_name: broker
     ports:
       - "9092:9092"
+    restart: on-failure
     depends_on:
       - zookeeper
     environment:
