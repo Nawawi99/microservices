@@ -17,6 +17,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Arrays;
@@ -25,7 +26,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@RefreshScope
 public class OrderServiceImpl implements OrderService {
     private final String PAYMENT_EXCHANGE = "payment-exchange";
     private final String PAYMENT_ROUTING_KEY = "payment-routing-key";
@@ -40,6 +40,7 @@ public class OrderServiceImpl implements OrderService {
     private final Gson gson;
 
     @Override
+    @Transactional
     public OrderDTO createOrder(OrderDTO orderDTO) {
         Order order = orderMapper.toModel(orderDTO);
 

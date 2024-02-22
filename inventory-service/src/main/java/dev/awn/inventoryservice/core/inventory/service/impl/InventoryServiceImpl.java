@@ -19,6 +19,7 @@ public class InventoryServiceImpl implements InventoryService {
     private final InventoryRepository inventoryRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<InventoryResponse> isInStock(List<String> codes) {
         // Simulating a slow service response
 //        try {

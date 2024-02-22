@@ -96,6 +96,7 @@ services:
   product-service:
     container_name: product-service
     image: ahmadnawawi99/product-service:0.0.1-SNAPSHOT
+    pull_policy: always
     environment:
       - SPRING_PROFILES_ACTIVE=prod
     depends_on:
@@ -107,6 +108,7 @@ services:
   order-service:
     container_name: order-service
     image: ahmadnawawi99/order-service:0.0.1-SNAPSHOT
+    pull_policy: always
     environment:
       - SPRING_PROFILES_ACTIVE=prod
     depends_on:
@@ -120,6 +122,7 @@ services:
   inventory-service:
     container_name: inventory-service
     image: ahmadnawawi99/inventory-service:0.0.1-SNAPSHOT
+    pull_policy: always
     environment:
       - SPRING_PROFILES_ACTIVE=prod
     depends_on:
