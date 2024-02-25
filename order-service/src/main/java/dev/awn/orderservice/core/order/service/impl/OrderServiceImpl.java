@@ -45,6 +45,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO createOrder(OrderDTO orderDTO) {
+        if(orderDTO.getItems() == null || orderDTO.getItems().isEmpty()) {
+            throw new BadRequestException("Cannot place an empty order");
+        }
+
         Order order = orderMapper.toModel(orderDTO);
 
         order.setNumber(UUID.randomUUID()
