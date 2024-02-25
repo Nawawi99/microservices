@@ -40,8 +40,11 @@ public class OrderServiceImpl implements OrderService {
     private final Gson gson;
 
     @Override
-    @Transactional
     public OrderDTO createOrder(OrderDTO orderDTO) {
+        if(orderDTO.getItems() == null || orderDTO.getItems().isEmpty()) {
+            throw new BadRequestException("Cannot place an empty order");
+        }
+
         Order order = orderMapper.toModel(orderDTO);
 
         order.setNumber(UUID.randomUUID()
@@ -71,9 +74,9 @@ public class OrderServiceImpl implements OrderService {
 
         if (productsInStock) {
             double totalOrderValue = order.getItems()
-                                               .stream()
-                                               .mapToDouble(Item::getPrice)
-                                               .reduce(0.0, Double::sum);
+                                          .stream()
+                                          .mapToDouble(Item::getPrice)
+                                          .reduce(0.0, Double::sum);
 
             OrderPaymentMessage orderPaymentMessage = new OrderPaymentMessage(order.getNumber(), totalOrderValue);
 
