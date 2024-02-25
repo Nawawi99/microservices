@@ -1,6 +1,10 @@
 ---
 version: '3.7'
 
+networks:
+  local-network:
+    external: true
+
 services:
   rabbitmq:
     image: rabbitmq:management
@@ -8,6 +12,8 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    networks:
+      - local-network
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -17,6 +23,8 @@ services:
     container_name: zookeeper
     ports:
       - "2181:2181"
+    networks:
+      - local-network
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -27,6 +35,8 @@ services:
     ports:
       - "9092:9092"
     restart: on-failure
+    networks:
+      - local-network
     depends_on:
       - zookeeper
     environment:
@@ -38,14 +48,6 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
 
-#  config-server:
-#    image: ahmadnawawi99/microservices:config-server
-#    container_name: config-server
-#    ports:
-#      - "8090:8090"
-#    expose:
-#      - "8090"
-
   discovery-server:
     image: ahmadnawawi99/discovery-server:0.0.1-SNAPSHOT
     pull_policy: always
@@ -54,10 +56,10 @@ services:
       - "8761:8761"
     expose:
       - "8761"
+    networks:
+      - local-network
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-#    depends_on:
-#      - config-server
 
   api-gateway:
     image: ahmadnawawi99/api-gateway:0.0.1-SNAPSHOT
@@ -70,11 +72,10 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY= TRACE
+    networks:
+      - local-network
     depends_on:
       - discovery-server
-      #- config-server
-    extra_hosts:
-      - "mongo:192.168.253.1"
 
   authentication-service:
     container_name: authentication-service
@@ -84,14 +85,13 @@ services:
       - "8091:8091"
     expose:
       - "8091"
-    extra_hosts:
-      - "mongo:192.168.253.1"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - local-network
     depends_on:
       - discovery-server
       - api-gateway
-      #- config-server
 
   product-service:
     container_name: product-service
@@ -102,8 +102,8 @@ services:
     depends_on:
       - discovery-server
       - api-gateway
-    extra_hosts:
-      - "mongo:192.168.253.1"
+    networks:
+      - local-network
 
   order-service:
     container_name: order-service
@@ -116,8 +116,8 @@ services:
       - discovery-server
       - api-gateway
       - rabbitmq
-    extra_hosts:
-      - "mongo:192.168.253.1"
+    networks:
+      - local-network
 
   inventory-service:
     container_name: inventory-service
@@ -128,9 +128,8 @@ services:
     depends_on:
       - discovery-server
       - api-gateway
-      #- config-server
-    extra_hosts:
-      - "mongo:192.168.253.1"
+    networks:
+      - local-network
 
   notification-service:
     container_name: notification-service
@@ -142,6 +141,8 @@ services:
       - discovery-server
       - api-gateway
       - broker
+    networks:
+      - local-network
 
   payment-service:
     container_name: payment-service
@@ -153,6 +154,8 @@ services:
       - discovery-server
       - api-gateway
       - rabbitmq
+    networks:
+      - local-network
 
 # The solution to hard coded IPs
 # 1- Create a network --> docker network create local-network
