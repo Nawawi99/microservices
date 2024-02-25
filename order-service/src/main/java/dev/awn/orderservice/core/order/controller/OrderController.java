@@ -3,6 +3,7 @@ package dev.awn.orderservice.core.order.controller;
 import dev.awn.orderservice.common.exception.ServiceUnavailableException;
 import dev.awn.orderservice.core.order.dto.OrderDTO;
 import dev.awn.orderservice.core.order.service.OrderService;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeoutException;
 
 @RestController
 @RequestMapping("/api/v1/orders")
@@ -42,9 +44,16 @@ public class OrderController {
                 );
     }
 
-    public CompletableFuture<ResponseEntity<OrderDTO>> createOrderFallback(OrderDTO orderDTO, RuntimeException e) {
+    public CompletableFuture<ResponseEntity<OrderDTO>> createOrderFallback(OrderDTO orderDTO, Exception e) {
+        // This check ignore exceptions thrown by other sources
+        if (e instanceof TimeoutException || e instanceof CallNotPermittedException) {
+            return CompletableFuture.supplyAsync(() -> {
+                throw new ServiceUnavailableException("Oops! Something went wrong, try again later");
+            });
+        }
+
         return CompletableFuture.supplyAsync(() -> {
-            throw new ServiceUnavailableException("Oops! Something went wrong, try again later");
+            throw (RuntimeException) e;
         });
     }
 
