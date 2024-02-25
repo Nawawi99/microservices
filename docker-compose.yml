@@ -153,3 +153,15 @@ services:
       - discovery-server
       - api-gateway
       - rabbitmq
+
+# The solution to hard coded IPs
+# 1- Create a network --> docker network create local-network
+# 2- Run an external service on that network --> docker run -d --name mongo -p 27017:27017 --network local-network mongo:latest
+# 3- Define/register the network in the docker compose
+#       networks:
+#         local-network:
+#           external: true
+# 4- for each service add
+#       networks:
+#         - local-network
+# 5- Remove hard coded IPs
