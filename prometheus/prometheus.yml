@@ -1,0 +1,53 @@
+global:
+  scrape_interval:     10s
+  evaluation_interval: 10s
+
+scrape_configs:
+  - job_name: 'product_service_job'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['product-service:8080']
+        labels:
+          application: 'Product Service Application'
+
+  - job_name: 'order_service_job'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['order-service:8080']
+        labels:
+          application: 'Order Service Application'
+
+  - job_name: 'inventory_service_job'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['inventory-service:8080']
+        labels:
+          application: 'Inventory Service Application'
+
+  - job_name: 'notification_service_job'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['notification-service:8080']
+        labels:
+          application: 'Notification Service Application'
+
+  - job_name: 'authentication_service_job'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'authentication-service:8080' ]
+        labels:
+          application: 'Authentication Service Application'
+
+#  - job_name: 'payment_service_job'
+#    metrics_path: '/actuator/prometheus'
+#    static_configs:
+#      - targets: [ 'payment-service:8080' ]
+#        labels:
+#          application: 'Payment Service Application'
+
+  - job_name: 'payment_service_job'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'payment-service-1:8080', 'payment-service-2:8080', 'payment-service-3:8080' ]
+        labels:
+          application: 'Payment Service Application'
