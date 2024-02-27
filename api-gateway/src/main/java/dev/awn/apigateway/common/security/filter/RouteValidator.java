@@ -13,7 +13,8 @@ public class RouteValidator {
     public static final List<String> permittedEndpoints = List.of(
             "/api/v1/users/signup",
             "/api/v1/users/signin",
-            "/eureka/web"
+            "/eureka/web",
+            "/actuator/prometheus"
     );
 
     public Predicate<ServerHttpRequest> isSecured =
