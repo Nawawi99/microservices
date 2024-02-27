@@ -157,6 +157,40 @@ services:
     networks:
       - local-network
 
+  prometheus:
+    image: prom/prometheus:v2.37.1
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - product-service
+      - inventory-service
+      - order-service
+      - notification-service
+      - payment-service
+      - authentication-service
+    networks:
+      - local-network
+
+  grafana:
+    image: grafana/grafana-oss:8.5.2
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    links:
+      - prometheus:prometheus
+    volumes:
+      - ./grafana:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=password
+    networks:
+      - local-network
+
 # The solution to hard coded IPs
 # 1- Create a network --> docker network create local-network
 # 2- Run an external service on that network --> docker run -d --name mongo -p 27017:27017 --network local-network mongo:latest
