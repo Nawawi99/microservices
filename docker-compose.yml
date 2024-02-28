@@ -48,6 +48,18 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
 
+  config-server:
+    image: ahmadnawawi99/config-server:0.0.1-SNAPSHOT
+    pull_policy: always
+    container_name: config-server
+    ports:
+      - "8090:8090"
+    expose:
+      - "8090"
+    networks:
+      - local-network
+    restart: on-failure
+
   discovery-server:
     image: ahmadnawawi99/discovery-server:0.0.1-SNAPSHOT
     pull_policy: always
@@ -59,7 +71,13 @@ services:
     networks:
       - local-network
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_APPLICATION_NAME=discovery-server
+      - SPRING_CLOUD_CONFIG_PROFILE=prod
+      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8090
+      - SPRING_CLOUD_CONFIG_LABEL=dockerized
+    restart: on-failure
+    depends_on:
+      - config-server
 
   api-gateway:
     image: ahmadnawawi99/api-gateway:0.0.1-SNAPSHOT
@@ -70,92 +88,123 @@ services:
     expose:
       - "8080"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_APPLICATION_NAME=api-gateway
+      - SPRING_CLOUD_CONFIG_PROFILE=prod
+      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8090
+      - SPRING_CLOUD_CONFIG_LABEL=dockerized
       - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY= TRACE
     networks:
       - local-network
     depends_on:
       - discovery-server
+      - config-server
+    restart: on-failure
 
   authentication-service:
     container_name: authentication-service
     image: ahmadnawawi99/authentication-service:0.0.1-SNAPSHOT
     pull_policy: always
-    ports:
-      - "8091:8091"
-    expose:
-      - "8091"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_APPLICATION_NAME=authentication-service
+      - SPRING_CLOUD_CONFIG_PROFILE=prod
+      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8090
+      - SPRING_CLOUD_CONFIG_LABEL=dockerized
     networks:
       - local-network
     depends_on:
       - discovery-server
       - api-gateway
+      - config-server
+    restart: on-failure
 
   product-service:
     container_name: product-service
     image: ahmadnawawi99/product-service:0.0.1-SNAPSHOT
     pull_policy: always
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_APPLICATION_NAME=product-service
+      - SPRING_CLOUD_CONFIG_PROFILE=prod
+      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8090
+      - SPRING_CLOUD_CONFIG_LABEL=dockerized
     depends_on:
       - discovery-server
       - api-gateway
+      - config-server
     networks:
       - local-network
+    restart: on-failure
 
   order-service:
     container_name: order-service
     image: ahmadnawawi99/order-service:0.0.1-SNAPSHOT
     pull_policy: always
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_APPLICATION_NAME=order-service
+      - SPRING_CLOUD_CONFIG_PROFILE=prod
+      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8090
+      - SPRING_CLOUD_CONFIG_LABEL=dockerized
     depends_on:
       - broker
       - discovery-server
       - api-gateway
       - rabbitmq
+      - config-server
     networks:
       - local-network
+    restart: on-failure
 
   inventory-service:
     container_name: inventory-service
     image: ahmadnawawi99/inventory-service:0.0.1-SNAPSHOT
     pull_policy: always
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_APPLICATION_NAME=inventory-service
+      - SPRING_CLOUD_CONFIG_PROFILE=prod
+      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8090
+      - SPRING_CLOUD_CONFIG_LABEL=dockerized
     depends_on:
       - discovery-server
       - api-gateway
+      - config-server
     networks:
       - local-network
+    restart: on-failure
 
   notification-service:
     container_name: notification-service
     image: ahmadnawawi99/notification-service:0.0.1-SNAPSHOT
     pull_policy: always
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_APPLICATION_NAME=notification-service
+      - SPRING_CLOUD_CONFIG_PROFILE=prod
+      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8090
+      - SPRING_CLOUD_CONFIG_LABEL=dockerized
     depends_on:
+      - config-server
       - discovery-server
       - api-gateway
       - broker
     networks:
       - local-network
+    restart: on-failure
 
   payment-service:
     container_name: payment-service
     image: ahmadnawawi99/payment-service:0.0.1-SNAPSHOT
     pull_policy: always
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_APPLICATION_NAME=payment-service
+      - SPRING_CLOUD_CONFIG_PROFILE=prod
+      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8090
+      - SPRING_CLOUD_CONFIG_LABEL=dockerized
     depends_on:
       - discovery-server
       - api-gateway
       - rabbitmq
+      - config-server
     networks:
       - local-network
+    restart: on-failure
 
   prometheus:
     image: prom/prometheus:v2.37.1
