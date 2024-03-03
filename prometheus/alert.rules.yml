@@ -1,0 +1,13 @@
+groups:
+  - name: outage
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        # Send a warning if the service is down for 5 minutes
+        # This begins on each repeat interval
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Service {{ $labels.application }} is down
+          description: '{{ $labels.application }} service is down.'
