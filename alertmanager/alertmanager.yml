@@ -1,0 +1,15 @@
+global:
+  smtp_smarthost: '192.168.232.90:25'
+  smtp_from: 'Ahmad.Nawawi@jo.zain.com'
+  smtp_require_tls: false
+
+route:
+  group_by: ['alertname', 'severity']
+  receiver: 'email-notifier'
+  repeat_interval: 5m
+  # Repeat notifying every 5 mins
+
+receivers:
+  - name: 'email-notifier'
+    email_configs:
+      - to: 'Ahmad.Nawawi@jo.zain.com'
