@@ -1,5 +1,6 @@
-# Set the path to the directory containing your microservices projects
-$projectsDirectory = "C:\Users\ahmad.nawawi\IdeaProjects\microservices"
+param (
+    [string]$projectsDirectory = $PWD.Path  # Set the default path to the current directory
+)
 
 # Get a list of directories in the projects directory that contain a pom.xml file
 $projectDirectories = Get-ChildItem -Path $projectsDirectory -Directory | Where-Object { Test-Path (Join-Path $_.FullName "pom.xml") }
