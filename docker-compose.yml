@@ -50,7 +50,7 @@ services:
 
   config-server:
     image: ahmadnawawi99/config-server:0.0.1-SNAPSHOT
-    pull_policy: always
+    #pull_policy: always
     container_name: config-server
     ports:
       - "8090:8090"
@@ -62,7 +62,7 @@ services:
 
   discovery-server:
     image: ahmadnawawi99/discovery-server:0.0.1-SNAPSHOT
-    pull_policy: always
+    #pull_policy: always
     container_name: discovery-server
     ports:
       - "8761:8761"
@@ -81,7 +81,7 @@ services:
 
   api-gateway:
     image: ahmadnawawi99/api-gateway:0.0.1-SNAPSHOT
-    pull_policy: always
+    #pull_policy: always
     container_name: api-gateway
     ports:
       - "8080:8080"
@@ -103,7 +103,7 @@ services:
   authentication-service:
     container_name: authentication-service
     image: ahmadnawawi99/authentication-service:0.0.1-SNAPSHOT
-    pull_policy: always
+    #pull_policy: always
     environment:
       - SPRING_APPLICATION_NAME=authentication-service
       - SPRING_CLOUD_CONFIG_PROFILE=prod
@@ -120,7 +120,7 @@ services:
   product-service:
     container_name: product-service
     image: ahmadnawawi99/product-service:0.0.1-SNAPSHOT
-    pull_policy: always
+    #pull_policy: always
     environment:
       - SPRING_APPLICATION_NAME=product-service
       - SPRING_CLOUD_CONFIG_PROFILE=prod
@@ -137,7 +137,7 @@ services:
   order-service:
     container_name: order-service
     image: ahmadnawawi99/order-service:0.0.1-SNAPSHOT
-    pull_policy: always
+    #pull_policy: always
     environment:
       - SPRING_APPLICATION_NAME=order-service
       - SPRING_CLOUD_CONFIG_PROFILE=prod
@@ -156,7 +156,7 @@ services:
   inventory-service:
     container_name: inventory-service
     image: ahmadnawawi99/inventory-service:0.0.1-SNAPSHOT
-    pull_policy: always
+    #pull_policy: always
     environment:
       - SPRING_APPLICATION_NAME=inventory-service
       - SPRING_CLOUD_CONFIG_PROFILE=prod
@@ -173,7 +173,7 @@ services:
   notification-service:
     container_name: notification-service
     image: ahmadnawawi99/notification-service:0.0.1-SNAPSHOT
-    pull_policy: always
+    #pull_policy: always
     environment:
       - SPRING_APPLICATION_NAME=notification-service
       - SPRING_CLOUD_CONFIG_PROFILE=prod
@@ -191,7 +191,7 @@ services:
   payment-service:
     container_name: payment-service
     image: ahmadnawawi99/payment-service:0.0.1-SNAPSHOT
-    pull_policy: always
+    #pull_policy: always
     environment:
       - SPRING_APPLICATION_NAME=payment-service
       - SPRING_CLOUD_CONFIG_PROFILE=prod
@@ -206,6 +206,16 @@ services:
       - local-network
     restart: on-failure
 
+  alert-manager:
+    image: prom/alertmanager
+    container_name: alert-manager
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    ports:
+      - '9093:9093'
+    networks:
+      - local-network
+
   prometheus:
     image: prom/prometheus:v2.37.1
     container_name: prometheus
@@ -214,6 +224,7 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml
     depends_on:
       - product-service
       - inventory-service
@@ -221,6 +232,7 @@ services:
       - notification-service
       - payment-service
       - authentication-service
+      - alert-manager
     networks:
       - local-network
 
