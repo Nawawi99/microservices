@@ -6,42 +6,42 @@ scrape_configs:
   - job_name: 'product_service_job'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['product-service:8080']
+      - targets: ['product-service:8085']
         labels:
           application: 'Product Service Application'
 
   - job_name: 'order_service_job'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['order-service:8080']
+      - targets: ['order-service:8085']
         labels:
           application: 'Order Service Application'
 
   - job_name: 'inventory_service_job'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['inventory-service:8080']
+      - targets: ['inventory-service:8085']
         labels:
           application: 'Inventory Service Application'
 
   - job_name: 'notification_service_job'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['notification-service:8080']
+      - targets: ['notification-service:8085']
         labels:
           application: 'Notification Service Application'
 
   - job_name: 'authentication_service_job'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: [ 'authentication-service:8080' ]
+      - targets: [ 'authentication-service:8085' ]
         labels:
           application: 'Authentication Service Application'
 
   - job_name: 'payment_service_job'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: [ 'payment-service:8080' ]
+      - targets: [ 'payment-service:8085' ]
         labels:
           application: 'Payment Service Application'
 
