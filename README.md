@@ -10,9 +10,9 @@ The primary purpose of this project is to provide a hands-on example of how micr
 
 ## Components
 
-- **Config Server**: Centralized configuration management for all microservices.
-- **Eureka Server**: Service registry for discovering microservices.
-- **API Gateway**: Entry point for all client requests, responsible for routing, security, and other cross-cutting concerns.
+- **config-server**: Centralized configuration management for all microservices.
+- **discovery-server**: Service registry for discovering microservices using Netflix Eureka.
+- **api-gateway**: Entry point for all client requests, responsible for routing, security, and other cross-cutting concerns.
 - **Backend Services**: Individual microservices that handle specific business functionalities.
 
 ## Prerequisites
